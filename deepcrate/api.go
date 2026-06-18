@@ -7,7 +7,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/staicey/deeptag/web"
+	"github.com/staicey/deeptag/util"
 )
 
 // Add an album to wishlist
@@ -21,7 +21,7 @@ func AddToWishlist(event *WebHook) {
 }`, event.Data.Artist, event.Data.Album))
 
 	url := fmt.Sprintf("%s/wishlist", deepcrateUrl)
-	code, out := web.Request("POST", url, payload, "application/json")
+	code, out := util.Request("POST", url, payload, "application/json")
 
 	log.Println("[DEBUG] create:", code, string(out))
 
@@ -32,7 +32,7 @@ func AddToWishlist(event *WebHook) {
 func GetDownloadID(target *WebHook) string {
 	payload := strings.NewReader("")
 	url := fmt.Sprintf("%s/downloads/completed?limit=50&offset=0", deepcrateUrl)
-	_, resp := web.Request("GET", url, payload, "application/json")
+	_, resp := util.Request("GET", url, payload, "application/json")
 
 	var downloads Completed
 	json.NewDecoder(bytes.NewReader(resp)).Decode(&downloads)
@@ -56,7 +56,7 @@ func DeleteDownloadRecord(id string) {
 }`, id))
 
 	url := fmt.Sprintf("%s/downloads/", deepcrateUrl)
-	code, out := web.Request("DELETE", url, payload, "application/json")
+	code, out := util.Request("DELETE", url, payload, "application/json")
 
 	log.Println("[DEBUG] delete:", code, string(out))
 }
@@ -65,7 +65,7 @@ func DeleteDownloadRecord(id string) {
 func Trigger(job string) {
 	payload := strings.NewReader("")
 	url := fmt.Sprintf("%s/jobs/%s/trigger", deepcrateUrl, job)
-	code, out := web.Request("POST", url, payload, "application/json")
+	code, out := util.Request("POST", url, payload, "application/json")
 
 	log.Println("[DEBUG] trigger:", code, string(out))
 }

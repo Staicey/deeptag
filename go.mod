@@ -1,4 +1,4 @@
-module deeptag
+module github.com/staicey/deeptag
 
 go 1.24.0
 

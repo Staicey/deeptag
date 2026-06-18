@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"deeptag/web"
+	"github.com/staicey/deeptag/web"
 )
 
 var (

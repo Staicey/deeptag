@@ -10,8 +10,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/logutils"
 
-	"deeptag/deepcrate"
-	"deeptag/wrtag"
+	"github.com/staicey/deeptag/deepcrate"
+	"github.com/staicey/deeptag/wrtag"
 )
 
 func main() {

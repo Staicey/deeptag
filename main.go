@@ -46,6 +46,12 @@ func TransformRequest(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&event)
 
 	log.Printf("[INFO] Request from %s %#v\n", r.RemoteAddr, event)
+	// If this is a test event from deepcrate then don't take actions
+	if event.Data.Album == "Test Album" && event.Data.Artist == "Test Artist" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// If the download path is empty then there was a failure downloading from
 	// slskd so we can remove the download entry & re-add to wishlist
 	if len(event.Data.DownloadPath) == 0 {
@@ -57,7 +63,7 @@ func TransformRequest(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(time.Second * 2)
 		deepcrate.Trigger("slskd-downloader")
 
-		w.WriteHeader(http.StatusNotAcceptable)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

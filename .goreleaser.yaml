@@ -5,30 +5,24 @@ before:
     - go mod tidy
 
 builds:
-  - main: ./...
-    env:
-      - CGO_ENABLED=0
+  - env: ["CGO_ENABLED=0"]
+    binary: deeptag
     goos:
-      - linux
       - darwin
+      - linux
     goarch:
-      - arm64
       - amd64
+      - arm64
 
-archives:
-  - formats: [tar.gz]
-    # this name template makes the OS and Arch compatible with the results of `uname`.
-    name_template: >-
-      {{ .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
+kos:
+  - repositories: [ghcr.io/staicey/deeptag]
+    tags:
+      - "{{.Version}}"
+      - latest
+    bare: true
+    preserve_import_paths: false
+    platforms:
+      - linux/amd64
+      - linux/arm64
 
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - "^docs:"
-      - "^test:"
+

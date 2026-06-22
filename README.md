@@ -26,12 +26,14 @@ services:
       - WRTAG_OP="move"      # type of operation to trigger (move|copy|reflink)
       - WRTAG_URL=           # full URL for wrtagweb (e.g. http(s)://wrtag.local)
       - WRTAG_TOKEN=         # wrtag api key
-      - WRTAG_DL_DIR=        # path where unorganised downloads are stored
+      - WRTAG_DL_DIR=        # path where unorganised downloads are stored on wrtag
       - DEEPCRATE_URL=       # full URL for deepcrate (e.g. http(s)://deepcrate.local)
       - DEEPCRATE_USER=      # username/password to use for deepcrate wishlist management
       - DEEPCRATE_PASS=
     expose:
-      - 8080
+      - 8081
     restart: unless-stopped
+    volumes:
+      - /path/to/downloads:/downloads   # (optional) to merge multiple CD releases
 ```
 

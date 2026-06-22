@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -12,6 +13,14 @@ import (
 
 	"github.com/staicey/deeptag/deepcrate"
 	"github.com/staicey/deeptag/wrtag"
+)
+
+var (
+	dlDir      string         = "/downloads"
+	dlMounted  bool           = false
+	stripRegex *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z0-9 _-]+`)
+	cdRegex    *regexp.Regexp = regexp.MustCompile(`(?i)^(cd|disk).?\d+$`)
+	alphaRegex *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z _-]+`)
 )
 
 func main() {
@@ -29,12 +38,17 @@ func main() {
 	log.Default().SetFlags(log.Ltime | log.Ldate | log.LUTC)
 	log.Default().SetOutput(filter)
 
+	// Check if the download dir is mounted to the container
+	if exists, _ := os.Stat(dlDir); exists != nil {
+		dlMounted = true
+	}
+
 	// Register webhook route
 	r := mux.NewRouter()
 	r.HandleFunc("/import", TransformRequest).Methods("POST")
 
-	log.Println("[INFO] Listening at port 8080")
-	if err := http.ListenAndServe(":8080", r); err != nil {
+	log.Println("[INFO] Listening at port 8081")
+	if err := http.ListenAndServe(":8081", r); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -67,8 +81,13 @@ func TransformRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	dlPath := event.Data.DownloadPath
+	if dlMounted == true {
+		dlPath = mergeReleaseCDs(event)
+	}
+
 	// Trigger an import via wrtag & return the result to deepcrate
-	code, output := wrtag.Import(event.Data.DownloadPath)
+	code, output := wrtag.Import(dlPath)
 	w.WriteHeader(code)
 	w.Write(output)
 }
